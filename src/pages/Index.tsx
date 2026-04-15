@@ -7,6 +7,7 @@ import PortfolioSection from "@/components/PortfolioSection";
 import BeforeAfter from "@/components/BeforeAfter";
 import StatsCounter from "@/components/StatsCounter";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import InstagramFeed from "@/components/InstagramFeed";
 import BookingSection from "@/components/BookingSection";
 import ContactSection from "@/components/ContactSection";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -24,6 +25,7 @@ const Index = () => {
       <PortfolioSection />
       <BeforeAfter />
       <TestimonialsSection />
+      <InstagramFeed />
       <BookingSection />
       <ContactSection />
       <Footer />
