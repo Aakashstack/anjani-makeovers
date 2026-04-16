@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Calendar, Send, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const serviceOptions = ["Bridal Makeup", "Party Makeup", "Engagement Makeup", "Photoshoot Makeup", "Other"];
 
@@ -10,8 +11,12 @@ export default function BookingSection() {
   const { toast } = useToast();
   const [form, setForm] = useState({ name: "", phone: "", email: "", date: "", service: "", message: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    await supabase.from("bookings").insert({
+      name: form.name, phone: form.phone, email: form.email || null,
+      date: form.date || null, service: form.service, message: form.message || null,
+    });
     toast({
       title: "Booking Request Sent! ✨",
       description: "Thank you! We'll get back to you within 24 hours to confirm your appointment.",
