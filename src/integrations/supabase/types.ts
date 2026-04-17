@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      about_highlights: {
+        Row: {
+          created_at: string
+          display_order: number
+          icon: string
+          id: string
+          label: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          label: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          label?: string
+        }
+        Relationships: []
+      }
       before_after_items: {
         Row: {
           after_image_url: string
@@ -43,39 +67,51 @@ export type Database = {
       }
       bookings: {
         Row: {
+          admin_notes: string | null
+          alternative_slots: string[] | null
           created_at: string
           date: string | null
           email: string | null
           id: string
           message: string | null
           name: string
+          pending_email_sent_at: string | null
           phone: string
           service: string
           status: string
+          status_email_sent_at: string | null
           updated_at: string
         }
         Insert: {
+          admin_notes?: string | null
+          alternative_slots?: string[] | null
           created_at?: string
           date?: string | null
           email?: string | null
           id?: string
           message?: string | null
           name: string
+          pending_email_sent_at?: string | null
           phone: string
           service: string
           status?: string
+          status_email_sent_at?: string | null
           updated_at?: string
         }
         Update: {
+          admin_notes?: string | null
+          alternative_slots?: string[] | null
           created_at?: string
           date?: string | null
           email?: string | null
           id?: string
           message?: string | null
           name?: string
+          pending_email_sent_at?: string | null
           phone?: string
           service?: string
           status?: string
+          status_email_sent_at?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -113,8 +149,9 @@ export type Database = {
           comments: number
           created_at: string
           display_order: number
+          embed_url: string | null
           id: string
-          image_url: string
+          image_url: string | null
           likes: number
           link: string
         }
@@ -123,8 +160,9 @@ export type Database = {
           comments?: number
           created_at?: string
           display_order?: number
+          embed_url?: string | null
           id?: string
-          image_url: string
+          image_url?: string | null
           likes?: number
           link?: string
         }
@@ -133,8 +171,9 @@ export type Database = {
           comments?: number
           created_at?: string
           display_order?: number
+          embed_url?: string | null
           id?: string
-          image_url?: string
+          image_url?: string | null
           likes?: number
           link?: string
         }
@@ -164,6 +203,27 @@ export type Database = {
           id?: string
           image_url?: string
           title?: string
+        }
+        Relationships: []
+      }
+      site_content: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
         }
         Relationships: []
       }
