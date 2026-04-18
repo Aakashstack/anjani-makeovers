@@ -1,15 +1,18 @@
 import { useAdmin } from "@/hooks/useAdmin";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, CalendarCheck, Image, Instagram, Phone, LogOut } from "lucide-react";
+import { LayoutDashboard, CalendarCheck, Image, Instagram, Phone, LogOut, FileText, Star, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { label: "Bookings", path: "/admin", icon: CalendarCheck },
+  { label: "Overview", path: "/admin", icon: LayoutDashboard, end: true },
+  { label: "Bookings", path: "/admin/bookings", icon: CalendarCheck },
   { label: "Portfolio", path: "/admin/portfolio", icon: Image },
-  { label: "Before & After", path: "/admin/before-after", icon: LayoutDashboard },
+  { label: "Before & After", path: "/admin/before-after", icon: Layers },
   { label: "Instagram", path: "/admin/instagram", icon: Instagram },
-  { label: "Contact", path: "/admin/contact", icon: Phone },
+  { label: "Reviews", path: "/admin/testimonials", icon: Star },
+  { label: "Homepage Content", path: "/admin/content", icon: FileText },
+  { label: "Contact Info", path: "/admin/contact", icon: Phone },
 ];
 
 export default function AdminDashboard() {
@@ -24,16 +27,18 @@ export default function AdminDashboard() {
     navigate("/admin/login");
   };
 
+  const isActive = (path: string, end?: boolean) =>
+    end ? location.pathname === path : location.pathname === path || location.pathname.startsWith(path + "/");
+
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Sidebar */}
       <aside className="w-64 border-r border-border bg-card flex flex-col">
         <div className="p-6 border-b border-border">
           <h1 className="font-serif text-lg font-bold text-foreground">Anjani <span className="text-primary">Admin</span></h1>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
-            const active = location.pathname === item.path;
+            const active = isActive(item.path, item.end);
             return (
               <Link
                 key={item.path}
@@ -56,8 +61,7 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 p-8 overflow-auto">
+      <main className="flex-1 p-6 md:p-8 overflow-auto">
         <Outlet />
       </main>
     </div>
