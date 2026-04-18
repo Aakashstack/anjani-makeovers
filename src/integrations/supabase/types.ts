@@ -72,6 +72,7 @@ export type Database = {
           created_at: string
           date: string | null
           email: string | null
+          feedback_requested_at: string | null
           id: string
           message: string | null
           name: string
@@ -80,7 +81,10 @@ export type Database = {
           service: string
           status: string
           status_email_sent_at: string | null
+          tracking_token: string
           updated_at: string
+          whatsapp_pending_sent_at: string | null
+          whatsapp_status_sent_at: string | null
         }
         Insert: {
           admin_notes?: string | null
@@ -88,6 +92,7 @@ export type Database = {
           created_at?: string
           date?: string | null
           email?: string | null
+          feedback_requested_at?: string | null
           id?: string
           message?: string | null
           name: string
@@ -96,7 +101,10 @@ export type Database = {
           service: string
           status?: string
           status_email_sent_at?: string | null
+          tracking_token?: string
           updated_at?: string
+          whatsapp_pending_sent_at?: string | null
+          whatsapp_status_sent_at?: string | null
         }
         Update: {
           admin_notes?: string | null
@@ -104,6 +112,7 @@ export type Database = {
           created_at?: string
           date?: string | null
           email?: string | null
+          feedback_requested_at?: string | null
           id?: string
           message?: string | null
           name?: string
@@ -112,7 +121,10 @@ export type Database = {
           service?: string
           status?: string
           status_email_sent_at?: string | null
+          tracking_token?: string
           updated_at?: string
+          whatsapp_pending_sent_at?: string | null
+          whatsapp_status_sent_at?: string | null
         }
         Relationships: []
       }
@@ -227,6 +239,56 @@ export type Database = {
         }
         Relationships: []
       }
+      testimonials: {
+        Row: {
+          approved: boolean
+          booking_id: string | null
+          comment: string
+          created_at: string
+          customer_name: string
+          display_order: number
+          id: string
+          image_url: string | null
+          rating: number
+          service: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved?: boolean
+          booking_id?: string | null
+          comment?: string
+          created_at?: string
+          customer_name: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          rating: number
+          service?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved?: boolean
+          booking_id?: string | null
+          comment?: string
+          created_at?: string
+          customer_name?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          rating?: number
+          service?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "testimonials_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -250,12 +312,44 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_booking_by_token: {
+        Args: { _token: string }
+        Returns: {
+          admin_notes: string
+          alternative_slots: string[]
+          created_at: string
+          date: string
+          id: string
+          name: string
+          service: string
+          status: string
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      lookup_booking: {
+        Args: { _code: string; _phone: string }
+        Returns: {
+          admin_notes: string
+          alternative_slots: string[]
+          created_at: string
+          date: string
+          id: string
+          name: string
+          service: string
+          status: string
+          tracking_token: string
+        }[]
+      }
+      submit_feedback: {
+        Args: { _comment: string; _rating: number; _token: string }
+        Returns: string
       }
     }
     Enums: {

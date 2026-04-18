@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { supabase } from "@/integrations/supabase/client";
 
-const stats = [
+type Stat = { value: number; suffix: string; label: string };
+
+const defaultStats: Stat[] = [
   { value: 500, suffix: "+", label: "Happy Clients" },
   { value: 5, suffix: "+", label: "Years Experience" },
   { value: 1000, suffix: "+", label: "Looks Created" },
@@ -10,7 +13,6 @@ const stats = [
 
 function AnimatedNumber({ target, isVisible }: { target: number; isVisible: boolean }) {
   const [count, setCount] = useState(0);
-
   useEffect(() => {
     if (!isVisible) return;
     let start = 0;
@@ -18,21 +20,24 @@ function AnimatedNumber({ target, isVisible }: { target: number; isVisible: bool
     const step = Math.max(1, Math.floor(target / (duration / 16)));
     const interval = setInterval(() => {
       start += step;
-      if (start >= target) {
-        setCount(target);
-        clearInterval(interval);
-      } else {
-        setCount(start);
-      }
+      if (start >= target) { setCount(target); clearInterval(interval); }
+      else setCount(start);
     }, 16);
     return () => clearInterval(interval);
   }, [isVisible, target]);
-
   return <span>{count}</span>;
 }
 
 export default function StatsCounter() {
   const { ref, isVisible } = useScrollAnimation();
+  const [stats, setStats] = useState<Stat[]>(defaultStats);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("site_content").select("value").eq("key", "stats").maybeSingle();
+      if (data?.value && Array.isArray(data.value)) setStats(data.value as unknown as Stat[]);
+    })();
+  }, []);
 
   return (
     <section className="py-20 bg-gradient-to-r from-primary/5 via-pink/50 to-primary/5" ref={ref}>
@@ -41,9 +46,7 @@ export default function StatsCounter() {
           {stats.map((stat, i) => (
             <div
               key={i}
-              className={`text-center transition-all duration-700 ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-              }`}
+              className={`text-center transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ transitionDelay: `${i * 0.15}s` }}
             >
               <div className="font-serif text-4xl md:text-5xl font-bold text-primary mb-2">
