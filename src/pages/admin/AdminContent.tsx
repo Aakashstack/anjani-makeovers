@@ -20,16 +20,40 @@ export default function AdminContent() {
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
+  const defaultHero: Hero = {
+    badge: "Professional Makeup Artist",
+    headline: "Enhancing Your Natural Beauty",
+    subheadline: "Transform your look with expert makeup artistry. From bridal glam to editorial perfection, every face tells a beautiful story.",
+    cta_primary: "View Portfolio",
+    cta_secondary: "Book Appointment",
+  };
+  const defaultAbout: About = {
+    label: "About Me",
+    title: "Meet Anjani",
+    paragraph_1: "With over 5 years of professional experience, I specialize in creating flawless, stunning looks that enhance your natural beauty.",
+    paragraph_2: "Trained in HD, airbrush, and traditional techniques, I stay updated with the latest trends.",
+    image_url: "",
+  };
+  const defaultStats: Stat[] = [
+    { value: 5, suffix: "+", label: "Years Experience" },
+    { value: 500, suffix: "+", label: "Happy Clients" },
+    { value: 200, suffix: "+", label: "Weddings" },
+    { value: 5, suffix: ".0", label: "Rating" },
+  ];
+
   const fetchAll = async () => {
     const [content, hl] = await Promise.all([
       supabase.from("site_content").select("*").in("key", ["hero", "about", "stats"]),
       supabase.from("about_highlights").select("*").order("display_order"),
     ]);
-    (content.data || []).forEach((row: any) => {
-      if (row.key === "hero") setHero(row.value);
-      if (row.key === "about") setAbout(row.value);
-      if (row.key === "stats") setStats(row.value);
-    });
+    const rows = content.data || [];
+    const heroRow = rows.find((r: any) => r.key === "hero")?.value as any;
+    const aboutRow = rows.find((r: any) => r.key === "about")?.value as any;
+    const statsRow = rows.find((r: any) => r.key === "stats")?.value as any;
+    // Merge with defaults so missing/legacy fields are filled in
+    setHero({ ...defaultHero, ...(heroRow || {}) });
+    setAbout({ ...defaultAbout, ...(aboutRow || {}) });
+    setStats(Array.isArray(statsRow) && statsRow.length > 0 && typeof statsRow[0]?.value === "number" ? statsRow : defaultStats);
     setHighlights(hl.data || []);
   };
 
@@ -48,13 +72,19 @@ export default function AdminContent() {
 
   const saveAll = async () => {
     setSaving(true);
-    await Promise.all([
-      hero && supabase.from("site_content").update({ value: hero as any }).eq("key", "hero"),
-      about && supabase.from("site_content").update({ value: about as any }).eq("key", "about"),
-      supabase.from("site_content").update({ value: stats as any }).eq("key", "stats"),
+    // Use upsert so legacy/missing rows get created with the right shape
+    const results = await Promise.all([
+      hero ? supabase.from("site_content").upsert({ key: "hero", value: hero as any }, { onConflict: "key" }) : null,
+      about ? supabase.from("site_content").upsert({ key: "about", value: about as any }, { onConflict: "key" }) : null,
+      supabase.from("site_content").upsert({ key: "stats", value: stats as any }, { onConflict: "key" }),
     ]);
     setSaving(false);
-    toast({ title: "Homepage content saved!" });
+    const err = results.find((r) => r && (r as any).error)?.["error" as any];
+    if (err) {
+      toast({ title: "Save failed", description: (err as any).message, variant: "destructive" });
+    } else {
+      toast({ title: "Homepage content saved!" });
+    }
   };
 
   const addHighlight = async () => {

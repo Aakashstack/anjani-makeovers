@@ -32,10 +32,10 @@ export default function AdminInstagram() {
 
   useEffect(() => { fetchPosts(); }, []);
 
-  // Convert any IG URL → embed URL
+  // Convert any IG URL → clean embed URL (strip query/hash, ensure /embed suffix)
   const toEmbed = (url: string) => {
-    const cleaned = url.split("?")[0].replace(/\/$/, "");
-    return `${cleaned}/embed`;
+    const cleaned = url.split("?")[0].split("#")[0].replace(/\/$/, "");
+    return cleaned.endsWith("/embed") ? cleaned : `${cleaned}/embed`;
   };
 
   const isValidIgUrl = (url: string) => /instagram\.com\/(p|reel|tv)\//.test(url);
