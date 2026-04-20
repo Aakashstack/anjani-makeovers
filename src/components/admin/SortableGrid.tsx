@@ -19,13 +19,15 @@ function SortableItem<T extends Item>({ item, render }: { item: T; render: (i: T
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : "auto" as const,
   };
+  // Drag handle: ONLY attributes + listeners — never setNodeRef (that goes on the wrapper)
   const handle = (
     <button
-      ref={setNodeRef as any}
+      type="button"
       {...attributes}
       {...listeners}
-      className="cursor-grab active:cursor-grabbing p-1.5 rounded hover:bg-muted text-muted-foreground"
+      className="cursor-grab active:cursor-grabbing p-1.5 rounded hover:bg-muted text-muted-foreground touch-none"
       aria-label="Drag to reorder"
     >
       <GripVertical className="w-4 h-4" />
