@@ -248,7 +248,7 @@ export default function AdminBookings() {
                 <Button size="sm" variant="outline" onClick={() => updateStatus(editing.id, "completed")}>Complete</Button>
                 <Button size="sm" variant="outline" onClick={() => updateStatus(editing.id, "cancelled")}>Cancel Booking</Button>
                 <a
-                  href={`${window.location.origin}/track/${editing.tracking_token}`}
+                  href={trackUrl(editing.tracking_token)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs border border-border hover:bg-muted ml-auto"
@@ -256,6 +256,34 @@ export default function AdminBookings() {
                   <ExternalLink className="w-3 h-3" /> Open tracking page
                 </a>
               </div>
+
+              {editing.status === "completed" && (
+                <div className="mt-2 p-4 rounded-lg border border-primary/30 bg-primary/5 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4 text-primary fill-primary" />
+                    <p className="font-medium text-sm">Ask for a review</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Send {editing.name} their personal feedback link. Their review will appear in the Reviews tab for you to approve.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={() => sendFeedbackWA(editing)} className="bg-green-600 hover:bg-green-700">
+                      <MessageCircle className="w-4 h-4 mr-1" /> Send via WhatsApp
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => copyFeedback(editing.tracking_token)}>
+                      <Copy className="w-4 h-4 mr-1" /> Copy feedback link
+                    </Button>
+                    <a
+                      href={feedbackUrl(editing.tracking_token)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs border border-border hover:bg-muted"
+                    >
+                      <ExternalLink className="w-3 h-3" /> Preview
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
