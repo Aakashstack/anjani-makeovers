@@ -18,8 +18,13 @@ import AdminPortfolio from "./pages/admin/AdminPortfolio.tsx";
 import AdminBeforeAfter from "./pages/admin/AdminBeforeAfter.tsx";
 import AdminInstagram from "./pages/admin/AdminInstagram.tsx";
 import AdminContact from "./pages/admin/AdminContact.tsx";
-import AdminContent from "./pages/admin/AdminContent.tsx";
 import AdminTestimonials from "./pages/admin/AdminTestimonials.tsx";
+import AdminHero from "./pages/admin/AdminHero.tsx";
+import AdminAbout from "./pages/admin/AdminAbout.tsx";
+import AdminServicesPage from "./pages/admin/AdminServices.tsx";
+import AdminBrands from "./pages/admin/AdminBrands.tsx";
+import AdminStats from "./pages/admin/AdminStats.tsx";
+import AdminSiteSettings from "./pages/admin/AdminSiteSettings.tsx";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +50,12 @@ const App = () => (
             <Route path="before-after" element={<AdminBeforeAfter />} />
             <Route path="instagram" element={<AdminInstagram />} />
             <Route path="testimonials" element={<AdminTestimonials />} />
-            <Route path="content" element={<AdminContent />} />
+            <Route path="hero" element={<AdminHero />} />
+            <Route path="about" element={<AdminAbout />} />
+            <Route path="services" element={<AdminServicesPage />} />
+            <Route path="stats" element={<AdminStats />} />
+            <Route path="brands" element={<AdminBrands />} />
+            <Route path="settings" element={<AdminSiteSettings />} />
             <Route path="contact" element={<AdminContact />} />
           </Route>
           <Route path="*" element={<NotFound />} />
