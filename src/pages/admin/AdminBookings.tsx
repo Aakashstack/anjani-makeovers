@@ -43,6 +43,26 @@ export default function AdminBookings() {
   const [notes, setNotes] = useState("");
   const [date, setDate] = useState("");
   const { toast } = useToast();
+  const { settings } = useSiteSettings();
+
+  const onlyDigits = (s: string) => (s || "").replace(/[^0-9]/g, "");
+  const waSendUrl = (phone: string, text: string) =>
+    `https://wa.me/${onlyDigits(phone)}?text=${encodeURIComponent(text)}`;
+
+  const feedbackUrl = (token: string) => `${window.location.origin}/feedback/${token}`;
+  const trackUrl = (token: string) => `${window.location.origin}/track/${token}`;
+
+  const sendFeedbackWA = (b: Booking) => {
+    const link = feedbackUrl(b.tracking_token);
+    const msg = `Hi ${b.name}! Thank you for choosing ${settings.brand_name} 💖 We'd love to hear about your experience — please share a quick review here: ${link}`;
+    window.open(waSendUrl(b.phone, msg), "_blank");
+  };
+
+  const copyFeedback = (token: string) => {
+    const url = feedbackUrl(token);
+    navigator.clipboard.writeText(url);
+    toast({ title: "Feedback link copied!", description: url });
+  };
 
   const fetchBookings = async () => {
     const { data } = await supabase.from("bookings").select("*").order("created_at", { ascending: false });
