@@ -82,6 +82,15 @@ export default function AdminBookings() {
     await supabase.from("bookings").update({ status }).eq("id", id);
     fetchBookings();
     toast({ title: `Marked as ${status}` });
+    if (status === "completed") {
+      const b = bookings.find((x) => x.id === id);
+      if (b) {
+        toast({
+          title: "✨ Send the feedback request",
+          description: "Tap WhatsApp on the row to send their review link.",
+        });
+      }
+    }
   };
 
   const saveEdit = async () => {
