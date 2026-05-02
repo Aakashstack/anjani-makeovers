@@ -168,6 +168,14 @@ export default function AdminBookings() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1 justify-end">
+                      {b.status === "completed" && (
+                        <Button size="sm" variant="ghost" onClick={() => sendFeedbackWA(b)} title="Send feedback request via WhatsApp" className="text-green-600 hover:text-green-700">
+                          <Star className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                      <Button size="sm" variant="ghost" onClick={() => window.open(waSendUrl(b.phone, `Hi ${b.name}, this is ${settings.brand_name} regarding your booking.`), "_blank")} title="WhatsApp customer">
+                        <MessageCircle className="w-3.5 h-3.5 text-green-600" />
+                      </Button>
                       <Button size="sm" variant="ghost" onClick={() => copyTrackingLink(b.tracking_token)} title="Copy tracking link">
                         <Copy className="w-3.5 h-3.5" />
                       </Button>
