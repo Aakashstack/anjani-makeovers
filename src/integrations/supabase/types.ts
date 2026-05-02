@@ -128,6 +128,27 @@ export type Database = {
         }
         Relationships: []
       }
+      brands: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       contact_info: {
         Row: {
           icon: string
@@ -214,6 +235,39 @@ export type Database = {
           display_order?: number
           id?: string
           image_url?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          created_at: string
+          description: string
+          display_order: number
+          duration: string
+          icon: string
+          id: string
+          price: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          display_order?: number
+          duration?: string
+          icon?: string
+          id?: string
+          price?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          display_order?: number
+          duration?: string
+          icon?: string
+          id?: string
+          price?: string
           title?: string
         }
         Relationships: []
