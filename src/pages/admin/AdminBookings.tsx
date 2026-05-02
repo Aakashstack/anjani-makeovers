@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Edit, Copy, ExternalLink, Plus, X } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { Trash2, Edit, Copy, ExternalLink, Plus, X, MessageCircle, Star } from "lucide-react";
 
 type Booking = {
   id: string;
