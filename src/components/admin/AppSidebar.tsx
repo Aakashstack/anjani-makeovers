@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, CalendarCheck, Image, Instagram, Phone, LogOut, FileText, Star, Layers } from "lucide-react";
+import { LayoutDashboard, CalendarCheck, Image, Instagram, Phone, LogOut, Star, Layers, Sparkles, User, Crown, Tags, Hash, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
@@ -16,14 +16,25 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
+const mainItems = [
   { label: "Overview", path: "/admin", icon: LayoutDashboard, end: true },
   { label: "Bookings", path: "/admin/bookings", icon: CalendarCheck },
+  { label: "Reviews", path: "/admin/testimonials", icon: Star },
+];
+
+const contentItems = [
+  { label: "Hero", path: "/admin/hero", icon: Sparkles },
+  { label: "About / Artist", path: "/admin/about", icon: User },
+  { label: "Services", path: "/admin/services", icon: Crown },
+  { label: "Stats", path: "/admin/stats", icon: Hash },
+  { label: "Brands", path: "/admin/brands", icon: Tags },
   { label: "Portfolio", path: "/admin/portfolio", icon: Image },
   { label: "Before & After", path: "/admin/before-after", icon: Layers },
   { label: "Instagram", path: "/admin/instagram", icon: Instagram },
-  { label: "Reviews", path: "/admin/testimonials", icon: Star },
-  { label: "Homepage Content", path: "/admin/content", icon: FileText },
+];
+
+const settingsItems = [
+  { label: "Site Settings", path: "/admin/settings", icon: Settings },
   { label: "Contact Info", path: "/admin/contact", icon: Phone },
 ];
 
@@ -41,6 +52,26 @@ export function AppSidebar() {
     navigate("/admin/login");
   };
 
+  const renderGroup = (label: string, items: typeof mainItems) => (
+    <SidebarGroup>
+      {!collapsed && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.path}>
+              <SidebarMenuButton asChild isActive={isActive(item.path, (item as any).end)} tooltip={item.label}>
+                <NavLink to={item.path} end={(item as any).end}>
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
@@ -56,27 +87,9 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel>Manage</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.path, item.end)}
-                    tooltip={item.label}
-                  >
-                    <NavLink to={item.path} end={item.end}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {renderGroup("Manage", mainItems)}
+        {renderGroup("Edit Website", contentItems)}
+        {renderGroup("Settings", settingsItems)}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">

@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Edit, Copy, ExternalLink, Plus, X } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { Trash2, Edit, Copy, ExternalLink, Plus, X, MessageCircle, Star } from "lucide-react";
 
 type Booking = {
   id: string;
@@ -42,6 +43,26 @@ export default function AdminBookings() {
   const [notes, setNotes] = useState("");
   const [date, setDate] = useState("");
   const { toast } = useToast();
+  const { settings } = useSiteSettings();
+
+  const onlyDigits = (s: string) => (s || "").replace(/[^0-9]/g, "");
+  const waSendUrl = (phone: string, text: string) =>
+    `https://wa.me/${onlyDigits(phone)}?text=${encodeURIComponent(text)}`;
+
+  const feedbackUrl = (token: string) => `${window.location.origin}/feedback/${token}`;
+  const trackUrl = (token: string) => `${window.location.origin}/track/${token}`;
+
+  const sendFeedbackWA = (b: Booking) => {
+    const link = feedbackUrl(b.tracking_token);
+    const msg = `Hi ${b.name}! Thank you for choosing ${settings.brand_name} 💖 We'd love to hear about your experience — please share a quick review here: ${link}`;
+    window.open(waSendUrl(b.phone, msg), "_blank");
+  };
+
+  const copyFeedback = (token: string) => {
+    const url = feedbackUrl(token);
+    navigator.clipboard.writeText(url);
+    toast({ title: "Feedback link copied!", description: url });
+  };
 
   const fetchBookings = async () => {
     const { data } = await supabase.from("bookings").select("*").order("created_at", { ascending: false });
@@ -61,6 +82,15 @@ export default function AdminBookings() {
     await supabase.from("bookings").update({ status }).eq("id", id);
     fetchBookings();
     toast({ title: `Marked as ${status}` });
+    if (status === "completed") {
+      const b = bookings.find((x) => x.id === id);
+      if (b) {
+        toast({
+          title: "✨ Send the feedback request",
+          description: "Tap WhatsApp on the row to send their review link.",
+        });
+      }
+    }
   };
 
   const saveEdit = async () => {
@@ -138,6 +168,14 @@ export default function AdminBookings() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1 justify-end">
+                      {b.status === "completed" && (
+                        <Button size="sm" variant="ghost" onClick={() => sendFeedbackWA(b)} title="Send feedback request via WhatsApp" className="text-green-600 hover:text-green-700">
+                          <Star className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                      <Button size="sm" variant="ghost" onClick={() => window.open(waSendUrl(b.phone, `Hi ${b.name}, this is ${settings.brand_name} regarding your booking.`), "_blank")} title="WhatsApp customer">
+                        <MessageCircle className="w-3.5 h-3.5 text-green-600" />
+                      </Button>
                       <Button size="sm" variant="ghost" onClick={() => copyTrackingLink(b.tracking_token)} title="Copy tracking link">
                         <Copy className="w-3.5 h-3.5" />
                       </Button>
@@ -210,7 +248,7 @@ export default function AdminBookings() {
                 <Button size="sm" variant="outline" onClick={() => updateStatus(editing.id, "completed")}>Complete</Button>
                 <Button size="sm" variant="outline" onClick={() => updateStatus(editing.id, "cancelled")}>Cancel Booking</Button>
                 <a
-                  href={`${window.location.origin}/track/${editing.tracking_token}`}
+                  href={trackUrl(editing.tracking_token)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs border border-border hover:bg-muted ml-auto"
@@ -218,6 +256,34 @@ export default function AdminBookings() {
                   <ExternalLink className="w-3 h-3" /> Open tracking page
                 </a>
               </div>
+
+              {editing.status === "completed" && (
+                <div className="mt-2 p-4 rounded-lg border border-primary/30 bg-primary/5 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4 text-primary fill-primary" />
+                    <p className="font-medium text-sm">Ask for a review</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Send {editing.name} their personal feedback link. Their review will appear in the Reviews tab for you to approve.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={() => sendFeedbackWA(editing)} className="bg-green-600 hover:bg-green-700">
+                      <MessageCircle className="w-4 h-4 mr-1" /> Send via WhatsApp
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => copyFeedback(editing.tracking_token)}>
+                      <Copy className="w-4 h-4 mr-1" /> Copy feedback link
+                    </Button>
+                    <a
+                      href={feedbackUrl(editing.tracking_token)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs border border-border hover:bg-muted"
+                    >
+                      <ExternalLink className="w-3 h-3" /> Preview
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>

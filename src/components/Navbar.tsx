@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -13,6 +14,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { settings } = useSiteSettings();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -21,6 +23,10 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => setOpen(false), [location]);
+
+  const brandParts = settings.brand_name.split(" ");
+  const brandHead = brandParts.slice(0, -1).join(" ");
+  const brandTail = brandParts[brandParts.length - 1];
 
   return (
     <nav
@@ -32,10 +38,9 @@ export default function Navbar() {
     >
       <div className="container mx-auto flex items-center justify-between py-4 px-4 md:px-8">
         <Link to="/" className="font-serif text-2xl md:text-3xl font-bold tracking-wide text-foreground">
-          Anjani <span className="text-primary">Makeovers</span>
+          {brandHead && <>{brandHead} </>}<span className="text-primary">{brandTail}</span>
         </Link>
 
-        {/* Desktop */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((l) => (
             <Link
@@ -50,7 +55,6 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Mobile toggle */}
         <button
           className="md:hidden text-foreground p-2"
           onClick={() => setOpen(!open)}
@@ -60,7 +64,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-500 ${
           open ? "max-h-80 opacity-100" : "max-h-0 opacity-0"

@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Star, Trash2, Check, X } from "lucide-react";
+import { Star, Trash2, Check, X, Plus } from "lucide-react";
 
 type Testimonial = {
   id: string;
@@ -18,6 +21,8 @@ type Testimonial = {
 export default function AdminTestimonials() {
   const [items, setItems] = useState<Testimonial[]>([]);
   const [filter, setFilter] = useState<"pending" | "approved" | "all">("pending");
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({ customer_name: "", rating: 5, comment: "", service: "", approved: true });
   const { toast } = useToast();
 
   const fetch = async () => {
@@ -40,14 +45,36 @@ export default function AdminTestimonials() {
     toast({ title: "Deleted" });
   };
 
+  const createOwn = async () => {
+    if (!form.customer_name.trim()) { toast({ title: "Name required", variant: "destructive" }); return; }
+    const { error } = await supabase.from("testimonials").insert({
+      customer_name: form.customer_name.trim(),
+      rating: form.rating,
+      comment: form.comment.trim(),
+      service: form.service.trim() || null,
+      approved: form.approved,
+    });
+    if (error) { toast({ title: "Failed", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Testimonial added" });
+    setCreating(false);
+    setForm({ customer_name: "", rating: 5, comment: "", service: "", approved: true });
+    fetch();
+  };
+
   const filtered = items.filter((t) =>
     filter === "all" ? true : filter === "approved" ? t.approved : !t.approved
   );
 
   return (
     <div>
-      <h2 className="text-2xl font-serif font-bold mb-2 text-foreground">Customer Reviews</h2>
-      <p className="text-sm text-muted-foreground mb-6">Approve reviews to publish them on the homepage testimonials section.</p>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-2xl font-serif font-bold text-foreground">Customer Reviews</h2>
+        <Button onClick={() => setCreating(true)}><Plus className="w-4 h-4 mr-1" /> Add Testimonial</Button>
+      </div>
+      <p className="text-sm text-muted-foreground mb-6">
+        Customers submit reviews via the feedback link after their booking is completed. Approve them to publish on the homepage.
+        You can also write your own (e.g. for older clients) using "Add Testimonial".
+      </p>
 
       <div className="flex gap-2 mb-6">
         {(["pending", "approved", "all"] as const).map((f) => (
@@ -75,11 +102,7 @@ export default function AdminTestimonials() {
                   <p className="text-xs text-muted-foreground">{t.service || "—"} · {new Date(t.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {t.approved ? (
-                    <Badge variant="secondary">Published</Badge>
-                  ) : (
-                    <Badge>Pending</Badge>
-                  )}
+                  {t.approved ? <Badge variant="secondary">Published</Badge> : <Badge>Pending</Badge>}
                 </div>
               </div>
               <div className="flex gap-0.5 mb-3">
@@ -106,6 +129,46 @@ export default function AdminTestimonials() {
           ))}
         </div>
       )}
+
+      <Dialog open={creating} onOpenChange={setCreating}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Testimonial</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium block mb-1">Customer name</label>
+              <Input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1">Service (optional)</label>
+              <Input value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} placeholder="e.g. Bridal Makeup" />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1">Rating</label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button key={n} type="button" onClick={() => setForm({ ...form, rating: n })}>
+                    <Star className={`w-6 h-6 ${n <= form.rating ? "fill-primary text-primary" : "text-muted"}`} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1">Comment</label>
+              <Textarea rows={4} value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} />
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={form.approved} onChange={(e) => setForm({ ...form, approved: e.target.checked })} />
+              Publish immediately
+            </label>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCreating(false)}>Cancel</Button>
+            <Button onClick={createOwn}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
